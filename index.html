@@ -76,12 +76,30 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
-        .emoji { font-size: 2.5rem; margin-bottom: 15px; }
-        .label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
-        .summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0; text-align: center; }
+        .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .summary {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+            text-align: center;
+        }
 
         /* TIMER VIEW */
-        #timer-view { display: none; }
+        #timer-view {
+            display: none;
+        }
         
         .instruction-container {
             background: #f4f4f2;
@@ -134,7 +152,6 @@
             min-width: 160px;
         }
 
-        /* Neutral Skip Button */
         .btn-skip {
             background: #ffffff;
             color: var(--text-main);
@@ -165,7 +182,7 @@
             margin-bottom: 30px;
         }
 
-        .back {
+        #global-back-link {
             display: block;
             margin-top: 50px;
             color: var(--text-muted);
@@ -174,8 +191,20 @@
             text-decoration: underline;
         }
 
-        @media (max-width: 850px) { .method-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 500px) { .method-grid { grid-template-columns: 1fr; } .page-title { text-align: center; } }
+        @media (max-width: 850px) {
+            .method-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+            .page-title {
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -227,4 +256,144 @@
                     <div id="step-instruction">Follow the instructions for this phase.</div>
                 </div>
 
-                <div id
+                <div id="display">00:00</div>
+                
+                <div class="controls">
+                    <button id="run-btn" class="btn" onclick="toggleTimer()">Start</button>
+                    <button id="skip-btn" class="btn btn-skip" onclick="skipStep()">Skip Step ⏭️</button>
+                </div>
+            </div>
+
+            <div id="completion-view">
+                <div class="congrats-title">Congratulations! 🎉</div>
+                <p class="congrats-sub">You have finished the method. Would you like to repeat it or return to the dashboard?</p>
+                <div class="controls">
+                    <button class="btn" onclick="repeatCurrent()">Repeat Method</button>
+                    <button class="btn btn-skip" onclick="goBack()">Back to Dashboard</button>
+                </div>
+            </div>
+
+            <span id="global-back-link" onclick="goBack()">← Back to Methods</span>
+        </div>
+    </div>
+
+    <script>
+        let currentMethodName = "";
+        let currentSteps = [];
+        let currentIdx = 0;
+        let timeLeft = 0;
+        let timerId = null;
+        let isRunning = false;
+
+        const methods = {
+            'Pomodoro': [
+                { name: "Focus Phase", mins: 25, task: "Work on a single task. No distractions allowed." },
+                { name: "Rest Phase", mins: 5, task: "Take a break. Walk away from your desk." }
+            ],
+            '50/10 Rule': [
+                { name: "Deep Work", mins: 50, task: "Intense focus session. Dive deep into your study material." },
+                { name: "Recovery", mins: 10, task: "Fully disconnect. Relax your eyes and mind." }
+            ],
+            'Feynman': [
+                { name: "Concept Review", mins: 10, task: "Identify the topic and review the core components." },
+                { name: "Simplification", mins: 10, task: "Write an explanation as if teaching a beginner." }
+            ],
+            'Active Recall': [
+                { name: "Review", mins: 5, task: "Briefly scan the material to prime your brain." },
+                { name: "Recall", mins: 15, task: "Close the book. Write down everything you can remember." }
+            ],
+            'Eat The Frog': [
+                { name: "Hardest Task", mins: 45, task: "Tackle your most difficult or avoided task right now." }
+            ],
+            'SQ3R Method': [
+                { name: "Survey & Question", mins: 5, task: "Skim the chapter and turn headings into questions." },
+                { name: "Read & Recite", mins: 20, task: "Find answers to your questions and summarize them." },
+                { name: "Review", mins: 5, task: "Review the whole section to fix it in your memory." }
+            ]
+        };
+
+        function startMethod(name) {
+            currentMethodName = name;
+            currentSteps = methods[name];
+            currentIdx = 0;
+            document.getElementById('current-method-header').innerText = name;
+            
+            document.getElementById('active-timer-area').style.display = 'block';
+            document.getElementById('completion-view').style.display = 'none';
+            document.getElementById('global-back-link').style.display = 'block';
+            document.getElementById('selection-view').style.display = 'none';
+            document.getElementById('timer-view').style.display = 'block';
+            
+            setupStep();
+        }
+
+        function setupStep() {
+            const step = currentSteps[currentIdx];
+            timeLeft = step.mins * 60;
+            document.getElementById('step-label').innerText = "Step " + (currentIdx + 1) + ": " + step.name;
+            document.getElementById('step-instruction').innerText = step.task;
+            updateDisplay();
+        }
+
+        function skipStep() {
+            currentIdx++;
+            if (currentIdx < currentSteps.length) {
+                setupStep();
+                if (isRunning) {
+                    clearInterval(timerId);
+                    isRunning = false;
+                    toggleTimer();
+                }
+            } else {
+                showCongrats();
+            }
+        }
+
+        function showCongrats() {
+            clearInterval(timerId);
+            isRunning = false;
+            document.getElementById('active-timer-area').style.display = 'none';
+            // Logic to hide the extra back button ONLY on this screen
+            document.getElementById('global-back-link').style.display = 'none'; 
+            document.getElementById('completion-view').style.display = 'block';
+        }
+
+        function repeatCurrent() {
+            startMethod(currentMethodName);
+        }
+
+        function updateDisplay() {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById('display').innerText = m + ":" + (s < 10 ? "0" : "") + s;
+        }
+
+        function toggleTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('run-btn').innerText = "Pause";
+                timerId = setInterval(function() {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(timerId);
+                        skipStep();
+                    }
+                }, 1000);
+            } else {
+                isRunning = false;
+                document.getElementById('run-btn').innerText = "Resume";
+                clearInterval(timerId);
+            }
+        }
+
+        function goBack() {
+            clearInterval(timerId);
+            isRunning = false;
+            document.getElementById('run-btn').innerText = "Start";
+            document.getElementById('selection-view').style.display = 'block';
+            document.getElementById('timer-view').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
