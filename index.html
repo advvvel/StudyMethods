@@ -6,16 +6,17 @@
     <title>Study Methods</title>
     <style>
         :root {
-            --bg-neutral: #f5f5f2;     /* Soft warm off-white */
+            --bg-neutral: #f9f9f7;     /* Light parchment background */
             --card-white: #ffffff;
-            --border-neutral: #e0e0e0; 
-            --text-main: #000000;      /* Pure black for title */
-            --text-soft: #5f6368;      /* Grey for summary */
-            --accent-neutral: #4a4a4a; /* Dark grey for buttons */
+            --border-light: #e8e8e8;
+            --text-black: #000000;     /* Pure black for title */
+            --text-main: #2d2d2d;      /* Dark charcoal for labels */
+            --text-muted: #757575;     /* Slate grey for summaries */
+            --accent-neutral: #1a1a1a; /* Near-black for buttons */
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-neutral);
             margin: 0;
             display: flex;
@@ -26,23 +27,24 @@
             box-sizing: border-box;
         }
 
-        /* Title: STATIC so it scrolls away */
+        /* Title: STATIC so it scrolls with the page */
         .page-title {
             width: 100%;
             max-width: 900px;
             text-align: left;
             font-size: 1.6rem;
-            color: var(--text-main);
+            color: var(--text-black);
             font-weight: 800;
-            margin: 0 0 30px 0;
+            margin: 0 0 35px 0;
             position: static; 
         }
 
         .main-card {
             background: var(--card-white);
             padding: 50px;
-            border-radius: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border-radius: 32px;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
             width: 100%;
             max-width: 900px;
             text-align: center;
@@ -51,81 +53,94 @@
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 24px;
         }
 
         .method-box {
             background: var(--card-white);
-            border: 1px solid var(--border-neutral);
-            border-radius: 24px;
-            /* Removed aspect-ratio to ensure summary text shows */
-            min-height: 220px; 
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            /* Removed fixed aspect-ratio so summary text is visible */
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            padding: 20px;
+            transition: all 0.25s ease;
         }
 
         .method-box:hover {
-            border-color: var(--accent-neutral);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            border-color: var(--text-muted);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
         .emoji {
-            font-size: 2.8rem;
-            margin-bottom: 12px;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            filter: grayscale(100%); /* Makes emojis neutral/black and white */
+            opacity: 0.8;
+        }
+
+        .method-box:hover .emoji {
+            filter: grayscale(0%); /* Color returns on hover for a nice effect */
+            opacity: 1;
         }
 
         .label {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #333;
-            margin-bottom: 8px;
+            color: var(--text-main);
+            margin-bottom: 10px;
         }
 
-        /* Summary text - now explicitly visible */
+        /* Summary text - explicitly visible and styled */
         .summary {
             font-size: 0.85rem;
-            color: var(--text-soft);
-            line-height: 1.4;
+            color: var(--text-muted);
+            line-height: 1.5;
             margin: 0;
-            display: block; /* Ensures it's not hidden */
+            text-align: center;
         }
 
         #timer-view { display: none; }
         
         #display {
-            font-size: 7rem;
-            font-weight: 300;
-            color: var(--accent-neutral);
-            margin: 30px 0;
+            font-size: 8rem;
+            font-weight: 200;
+            color: var(--text-main);
+            letter-spacing: -3px;
+            margin: 40px 0;
         }
 
         .btn {
             background: var(--accent-neutral);
             color: white;
             border: none;
-            padding: 18px 50px;
+            padding: 20px 60px;
             border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
         }
 
         .back {
             display: block;
             margin-top: 40px;
-            color: #999;
+            color: var(--text-muted);
             cursor: pointer;
             font-size: 0.9rem;
             text-decoration: none;
+            letter-spacing: 0.5px;
         }
 
-        .back:hover { color: var(--text-main); }
+        .back:hover { color: var(--text-black); }
 
         @media (max-width: 850px) {
             .method-grid { grid-template-columns: repeat(2, 1fr); }
@@ -147,38 +162,38 @@
                 <div class="method-box" onclick="start(25, 'Pomodoro')">
                     <span class="emoji">🍅</span>
                     <span class="label">Pomodoro</span>
-                    <p class="summary">25m focus followed by a 5m break to refresh.</p>
+                    <p class="summary">Focus for 25 minutes followed by a brief 5 minute rest.</p>
                 </div>
                 <div class="method-box" onclick="start(50, '50/10 Rule')">
                     <span class="emoji">⏱️</span>
                     <span class="label">50/10 Rule</span>
-                    <p class="summary">Deep work blocks for longer, focused sessions.</p>
+                    <p class="summary">Extended focus blocks designed for deep work sessions.</p>
                 </div>
                 <div class="method-box" onclick="start(20, 'Feynman')">
                     <span class="emoji">👨‍🏫</span>
                     <span class="label">Feynman</span>
-                    <p class="summary">Learn by explaining concepts in simple terms.</p>
+                    <p class="summary">Master a topic by teaching it in the simplest possible terms.</p>
                 </div>
                 <div class="method-box" onclick="start(15, 'Active Recall')">
                     <span class="emoji">🧠</span>
                     <span class="label">Active Recall</span>
-                    <p class="summary">Test yourself frequently to strengthen memory.</p>
+                    <p class="summary">Challenge your memory with testing instead of passive review.</p>
                 </div>
                 <div class="method-box" onclick="start(45, 'Eat The Frog')">
                     <span class="emoji">🐸</span>
                     <span class="label">Eat The Frog</span>
-                    <p class="summary">Complete your most difficult task first.</p>
+                    <p class="summary">Prioritize and complete your most difficult task first.</p>
                 </div>
                 <div class="method-box" onclick="start(30, 'SQ3R Method')">
                     <span class="emoji">🔍</span>
                     <span class="label">SQ3R Method</span>
-                    <p class="summary">Survey, Question, Read, Recite, and Review.</p>
+                    <p class="summary">Survey, Question, Read, Recite, and Review your material.</p>
                 </div>
             </div>
         </div>
 
         <div id="timer-view">
-            <h2 id="mode-name" style="color: var(--accent-neutral); font-size: 1.8rem;">Method</h2>
+            <h2 id="mode-name" style="color: var(--text-main); font-size: 1.8rem; font-weight: 800;">Method</h2>
             <div id="display">00:00</div>
             <button id="run-btn" class="btn" onclick="toggle()">Start</button>
             <span class="back" onclick="goBack()">← Back to Methods</span>
@@ -213,7 +228,7 @@
                     showTime();
                     if (time <= 0) {
                         clearInterval(timer);
-                        alert("Session Complete!");
+                        alert("Session complete.");
                         goBack();
                     }
                 }, 1000);
