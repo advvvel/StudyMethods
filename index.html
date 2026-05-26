@@ -16,37 +16,36 @@
             background-color: var(--teal-bg);
             margin: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 100px 20px 40px 20px;
+            box-sizing: border-box;
         }
 
-        /* Black title in the top-left corner */
+        /* Title: Static to the top of the page and Black */
         .page-title {
-            position: fixed;
+            position: absolute;
             top: 25px;
             left: 25px;
             font-size: 1.6rem;
             color: #000000;
             font-weight: 800;
             margin: 0;
-            z-index: 100;
         }
 
-        /* Large white container expanded to fit more methods */
+        /* Main White Container */
         .main-card {
             background: white;
             padding: 50px;
             border-radius: 40px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-            width: 95%;
+            width: 100%;
             max-width: 900px;
             text-align: center;
-            margin-top: 50px;
         }
 
-        /* Grid Selection - 3 columns for 6 methods */
+        /* Grid for the 6 Methods */
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -84,7 +83,7 @@
             color: var(--teal-text);
         }
 
-        /* Timer View */
+        /* Timer UI */
         #timer-view { display: none; }
         
         #display {
@@ -114,10 +113,13 @@
             text-decoration: underline;
         }
 
-        /* Mobile responsive: switch to 2 columns on small screens */
-        @media (max-width: 700px) {
+        @media (max-width: 850px) {
             .method-grid { grid-template-columns: repeat(2, 1fr); }
-            .page-title { position: relative; top: 0; left: 0; margin-bottom: 20px; }
+        }
+
+        @media (max-width: 500px) {
+            .method-grid { grid-template-columns: 1fr; }
+            .page-title { left: 50%; transform: translateX(-50%); }
         }
     </style>
 </head>
@@ -174,6 +176,7 @@
             document.getElementById('mode-name').innerText = name;
             time = mins * 60;
             showTime();
+            window.scrollTo(0,0);
         }
 
         function showTime() {
