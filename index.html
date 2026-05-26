@@ -9,68 +9,124 @@
             --teal-dark: #00796b;
             --teal-medium: #4db6ac;
             --teal-light: #e0f2f1;
-            --text: #2c3e50;
+            --text-main: #000000; /* Black for the main title */
+            --text-sub: #2c3e50;
         }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--teal-light);
-            color: var(--text);
+            color: var(--text-sub);
             margin: 0;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow: hidden;
         }
 
-        /* Title in the top left corner */
+        /* Title in the top left corner in black */
         .page-title {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--teal-dark);
+            top: 30px;
+            left: 30px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
             margin: 0;
+            letter-spacing: -0.5px;
         }
 
         .container {
             background: white;
-            padding: 60px 40px; /* Bigger padding */
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0, 121, 107, 0.08);
+            padding: 80px 50px; /* Large padding for a bigger box */
+            border-radius: 40px;
+            box-shadow: 0 15px 35px rgba(0, 121, 107, 0.06);
             width: 100%;
-            max-width: 650px; /* Made the white box wider */
+            max-width: 700px; /* Wider white container */
             text-align: center;
         }
 
-        /* Square Button Grid */
+        /* Large Square Button Grid */
         .method-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px; /* More space between buttons */
+            gap: 40px; /* Large gap */
         }
 
         .square-card {
             background: #ffffff;
             border: 2px solid var(--teal-light);
-            border-radius: 25px;
+            border-radius: 30px;
             aspect-ratio: 1 / 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 30px;
         }
 
         .square-card:hover {
             border-color: var(--teal-medium);
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0, 121, 107, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 121, 107, 0.1);
         }
 
         .icon-preview {
-            font-size: 3.
+            font-size: 4rem; /* Big Icons */
+            margin-bottom: 20px;
+        }
+
+        .card-label {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--teal-dark);
+        }
+
+        /* Timer Section */
+        #study-section { display: none; }
+
+        #timer-display {
+            font-size: 6rem;
+            font-weight: 200;
+            color: var(--teal-dark);
+            margin: 40px 0;
+        }
+
+        .control-btn {
+            background: var(--teal-medium);
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .control-btn:hover { background: var(--teal-dark); }
+
+        .back-link {
+            display: block;
+            margin-top: 40px;
+            color: #95a5a6;
+            text-decoration: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="page-title">StudyMethods</h1>
+
+    <div class="container">
+        <div id="menu">
+            <div class="method-grid">
+                <div class="square-card" onclick="startMethod('Pomodoro', 25)">
+                    <div class="icon-preview">🍅</div>
+                    <div class="card-
