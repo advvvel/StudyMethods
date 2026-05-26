@@ -27,7 +27,7 @@
             box-sizing: border-box;
         }
 
-        /* STATIC BLACK TITLE - Scrolls with page */
+        /* STATIC BLACK TITLE */
         .page-title {
             width: 100%;
             max-width: 900px;
@@ -39,7 +39,6 @@
             position: static; 
         }
 
-        /* BIG WHITE CONTAINER */
         .main-card {
             background: var(--card-white);
             padding: 50px;
@@ -51,7 +50,6 @@
             text-align: center;
         }
 
-        /* 6 METHOD GRID */
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -78,25 +76,9 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
-        .emoji {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-
-        .label {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 10px;
-        }
-
-        .summary {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin: 0;
-            text-align: center;
-        }
+        .emoji { font-size: 2.5rem; margin-bottom: 15px; }
+        .label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+        .summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0; text-align: center; }
 
         /* TIMER VIEW */
         #timer-view { display: none; }
@@ -149,7 +131,6 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             min-width: 160px;
         }
 
@@ -159,9 +140,6 @@
             border: 1px solid var(--border-light);
         }
 
-        .btn:hover { opacity: 0.9; }
-        .btn-skip:hover { background: #f9f9f9; border-color: var(--text-muted); }
-
         .back {
             display: block;
             margin-top: 50px;
@@ -169,6 +147,15 @@
             cursor: pointer;
             font-size: 0.9rem;
             text-decoration: underline;
+        }
+
+        /* Message for completion */
+        #completion-msg {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 40px 0;
         }
 
         @media (max-width: 850px) { .method-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -218,17 +205,21 @@
         <div id="timer-view">
             <h2 id="current-method-name" style="margin-bottom: 25px; font-weight: 800;">Method</h2>
             
-            <div class="instruction-container">
-                <div id="step-label">Step 1</div>
-                <div id="step-instruction">Follow the instructions for this phase.</div>
+            <div id="timer-content">
+                <div class="instruction-container">
+                    <div id="step-label">Step 1</div>
+                    <div id="step-instruction">Follow the instructions for this phase.</div>
+                </div>
+
+                <div id="display">00:00</div>
+                
+                <div class="controls">
+                    <button id="run-btn" class="btn" onclick="toggleTimer()">Start</button>
+                    <button id="skip-btn" class="btn btn-skip" onclick="skipStep()">Skip Step ⏭️</button>
+                </div>
             </div>
 
-            <div id="display">00:00</div>
-            
-            <div class="controls">
-                <button id="run-btn" class="btn" onclick="toggleTimer()">Start</button>
-                <button class="btn btn-skip" onclick="skipStep()">Skip Step ⏭️</button>
-            </div>
+            <div id="completion-msg">The study session is completed! 🎉</div>
 
             <span class="back" onclick="goBack()">← Back to Methods</span>
         </div>
@@ -272,6 +263,11 @@
             currentMethodSteps = methodLogic[name];
             currentStepIndex = 0;
             document.getElementById('current-method-name').innerText = name;
+            
+            // Reset UI states
+            document.getElementById('timer-content').style.display = 'block';
+            document.getElementById('completion-msg').style.display = 'none';
+            
             setupStep();
             document.getElementById('selection-view').style.display = 'none';
             document.getElementById('timer-view').style.display = 'block';
@@ -291,9 +287,15 @@
                 setupStep();
                 if (isRunning) resetAndContinue();
             } else {
-                alert("Session Complete!");
-                goBack();
+                finishSession();
             }
+        }
+
+        function finishSession() {
+            clearInterval(timerId);
+            isRunning = false;
+            document.getElementById('timer-content').style.display = 'none';
+            document.getElementById('completion-msg').style.display = 'block';
         }
 
         function updateDisplay() {
