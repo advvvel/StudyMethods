@@ -19,22 +19,22 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 100px 20px 40px 20px;
+            padding: 40px 20px;
             box-sizing: border-box;
         }
 
-        /* Title: Static to the top of the page and Black */
+        /* Title: Now STATIC so it scrolls with the page naturally */
         .page-title {
-            position: absolute;
-            top: 25px;
-            left: 25px;
+            width: 100%;
+            max-width: 900px;
+            text-align: left;
             font-size: 1.6rem;
             color: #000000;
             font-weight: 800;
-            margin: 0;
+            margin: 0 0 30px 0; /* Space below title */
+            position: static; 
         }
 
-        /* Main White Container */
         .main-card {
             background: white;
             padding: 50px;
@@ -45,7 +45,6 @@
             text-align: center;
         }
 
-        /* Grid for the 6 Methods */
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -63,7 +62,7 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.3s, border-color 0.3s;
-            padding: 10px;
+            padding: 15px;
         }
 
         .method-box:hover {
@@ -73,17 +72,25 @@
         }
 
         .emoji {
-            font-size: 3.5rem;
-            margin-bottom: 12px;
+            font-size: 3rem;
+            margin-bottom: 10px;
         }
 
         .label {
             font-size: 1.1rem;
             font-weight: 700;
             color: var(--teal-text);
+            margin-bottom: 8px;
         }
 
-        /* Timer UI */
+        /* Tiny Summary Text */
+        .summary {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            line-height: 1.2;
+            padding: 0 10px;
+        }
+
         #timer-view { display: none; }
         
         #display {
@@ -119,7 +126,7 @@
 
         @media (max-width: 500px) {
             .method-grid { grid-template-columns: 1fr; }
-            .page-title { left: 50%; transform: translateX(-50%); }
+            .page-title { text-align: center; }
         }
     </style>
 </head>
@@ -133,26 +140,32 @@
                 <div class="method-box" onclick="start(25, 'Pomodoro')">
                     <span class="emoji">🍅</span>
                     <span class="label">Pomodoro</span>
+                    <p class="summary">25m focus followed by a 5m break.</p>
                 </div>
                 <div class="method-box" onclick="start(50, '50/10 Rule')">
                     <span class="emoji">⏱️</span>
                     <span class="label">50/10 Rule</span>
+                    <p class="summary">Long focus blocks for deep work sessions.</p>
                 </div>
                 <div class="method-box" onclick="start(20, 'Feynman')">
                     <span class="emoji">👨‍🏫</span>
                     <span class="label">Feynman</span>
+                    <p class="summary">Learn by teaching a concept simply.</p>
                 </div>
                 <div class="method-box" onclick="start(15, 'Active Recall')">
                     <span class="emoji">🧠</span>
                     <span class="label">Active Recall</span>
+                    <p class="summary">Test your memory instead of re-reading.</p>
                 </div>
                 <div class="method-box" onclick="start(45, 'Eat The Frog')">
                     <span class="emoji">🐸</span>
                     <span class="label">Eat The Frog</span>
+                    <p class="summary">Tackle your hardest task first thing.</p>
                 </div>
                 <div class="method-box" onclick="start(30, 'SQ3R Method')">
                     <span class="emoji">🔍</span>
                     <span class="label">SQ3R Method</span>
+                    <p class="summary">Survey, Question, Read, Recite, Review.</p>
                 </div>
             </div>
         </div>
@@ -176,7 +189,6 @@
             document.getElementById('mode-name').innerText = name;
             time = mins * 60;
             showTime();
-            window.scrollTo(0,0);
         }
 
         function showTime() {
