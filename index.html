@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg-neutral);
             margin: 0;
             display: flex;
@@ -27,6 +27,7 @@
             box-sizing: border-box;
         }
 
+        /* STATIC BLACK TITLE - Scrolls with page */
         .page-title {
             width: 100%;
             max-width: 900px;
@@ -38,6 +39,7 @@
             position: static; 
         }
 
+        /* BIG WHITE CONTAINER */
         .main-card {
             background: var(--card-white);
             padding: 50px;
@@ -49,6 +51,7 @@
             text-align: center;
         }
 
+        /* 6 METHOD GRID */
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -66,67 +69,102 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.25s ease;
+            min-height: 220px;
         }
 
         .method-box:hover {
             border-color: var(--text-muted);
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
-        .emoji { font-size: 2.5rem; margin-bottom: 15px; }
-        .label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
-        .summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0; text-align: center; }
+        .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
 
-        /* Timer View Styles */
+        .label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .summary {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* TIMER VIEW */
         #timer-view { display: none; }
         
-        /* New Instruction Styling */
-        #instruction-box {
-            background: #f1f1ee;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 500;
+        .instruction-container {
+            background: #f4f4f2;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-light);
+        }
+
+        #step-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        #step-instruction {
+            font-size: 1.2rem;
             color: var(--text-main);
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-weight: 600;
+            line-height: 1.4;
         }
 
         #display {
             font-size: 8rem;
             font-weight: 200;
             color: var(--text-main);
-            letter-spacing: -3px;
+            letter-spacing: -4px;
             margin: 20px 0;
         }
 
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             justify-content: center;
+            margin-top: 30px;
         }
 
         .btn {
             background: var(--accent-neutral);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 12px;
-            font-size: 1rem;
+            padding: 18px 45px;
+            border-radius: 14px;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.2s;
+            min-width: 160px;
         }
 
-        .btn-secondary {
-            background: #e8e8e8;
+        .btn-skip {
+            background: #ffffff;
             color: var(--text-main);
+            border: 1px solid var(--border-light);
         }
+
+        .btn:hover { opacity: 0.9; }
+        .btn-skip:hover { background: #f9f9f9; border-color: var(--text-muted); }
 
         .back {
             display: block;
-            margin-top: 40px;
+            margin-top: 50px;
             color: var(--text-muted);
             cursor: pointer;
             font-size: 0.9rem;
@@ -134,7 +172,7 @@
         }
 
         @media (max-width: 850px) { .method-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 500px) { .method-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 500px) { .method-grid { grid-template-columns: 1fr; } .page-title { text-align: center; } }
     </style>
 </head>
 <body>
@@ -178,15 +216,18 @@
         </div>
 
         <div id="timer-view">
-            <h2 id="mode-name" style="color: var(--text-main); font-size: 1.8rem; font-weight: 800;">Method</h2>
+            <h2 id="current-method-name" style="margin-bottom: 25px; font-weight: 800;">Method</h2>
             
-            <div id="instruction-box">Step 1: Get started</div>
+            <div class="instruction-container">
+                <div id="step-label">Step 1</div>
+                <div id="step-instruction">Follow the instructions for this phase.</div>
+            </div>
 
             <div id="display">00:00</div>
             
             <div class="controls">
-                <button id="run-btn" class="btn" onclick="toggle()">Start</button>
-                <button class="btn btn-secondary" onclick="skipStep()">Skip Step ⏭️</button>
+                <button id="run-btn" class="btn" onclick="toggleTimer()">Start</button>
+                <button class="btn btn-skip" onclick="skipStep()">Skip Step ⏭️</button>
             </div>
 
             <span class="back" onclick="goBack()">← Back to Methods</span>
@@ -194,100 +235,101 @@
     </div>
 
     <script>
-        let currentMethod = null;
+        let currentMethodSteps = [];
         let currentStepIndex = 0;
         let timeLeft = 0;
-        let timer = null;
-        let running = false;
+        let timerId = null;
+        let isRunning = false;
 
-        const methodsData = {
+        const methodLogic = {
             'Pomodoro': [
-                { name: "Deep Focus", mins: 25, desc: "Eliminate distractions and focus on one task." },
-                { name: "Short Break", mins: 5, desc: "Stand up, stretch, and grab some water." }
+                { name: "Focus Phase", mins: 25, task: "Work on a single task. No distractions allowed." },
+                { name: "Rest Phase", mins: 5, task: "Take a break. Walk away from your desk." }
             ],
             '50/10 Rule': [
-                { name: "Deep Work", mins: 50, desc: "Complete high-intensity work during this block." },
-                { name: "Relaxation", mins: 10, desc: "Step away from the screen entirely." }
+                { name: "Deep Work", mins: 50, task: "Intense focus session. Dive deep into your study material." },
+                { name: "Recovery", mins: 10, task: "Fully disconnect. Relax your eyes and mind." }
             ],
             'Feynman': [
-                { name: "Study Concept", mins: 10, desc: "Read the material you want to master." },
-                { name: "Explain Simply", mins: 10, desc: "Write it down as if explaining to a 10-year-old." }
+                { name: "Concept Review", mins: 10, task: "Identify the topic and review the core components." },
+                { name: "Simplification", mins: 10, task: "Write an explanation as if teaching a beginner." }
             ],
             'Active Recall': [
-                { name: "Review Material", mins: 5, desc: "Quickly scan the topic or your notes." },
-                { name: "Self-Test", mins: 10, desc: "Close the book. Write down everything you remember." }
+                { name: "Review", mins: 5, task: "Briefly scan the material to prime your brain." },
+                { name: "Recall", mins: 15, task: "Close the book. Write down everything you can remember." }
             ],
             'Eat The Frog': [
-                { name: "Tackle Hardest Task", mins: 45, desc: "Don't stop until the biggest task is finished." }
+                { name: "Hardest Task", mins: 45, task: "Tackle your most difficult or avoided task right now." }
             ],
             'SQ3R Method': [
-                { name: "Survey & Question", mins: 5, desc: "Skim the text and turn headings into questions." },
-                { name: "Read & Recite", mins: 20, desc: "Read to find answers and summarize out loud." },
-                { name: "Review", mins: 5, desc: "Check if you can answer your original questions." }
+                { name: "Survey & Question", mins: 5, task: "Skim the chapter and turn headings into questions." },
+                { name: "Read & Recite", mins: 20, task: "Find answers to your questions and summarize them." },
+                { name: "Review", mins: 5, task: "Review the whole section to fix it in your memory." }
             ]
         };
 
         function startMethod(name) {
-            currentMethod = name;
+            currentMethodSteps = methodLogic[name];
             currentStepIndex = 0;
+            document.getElementById('current-method-name').innerText = name;
             setupStep();
             document.getElementById('selection-view').style.display = 'none';
             document.getElementById('timer-view').style.display = 'block';
-            document.getElementById('mode-name').innerText = name;
         }
 
         function setupStep() {
-            const step = methodsData[currentMethod][currentStepIndex];
+            const step = currentMethodSteps[currentStepIndex];
             timeLeft = step.mins * 60;
-            document.getElementById('instruction-box').innerText = `${step.name}: ${step.desc}`;
-            showTime();
+            document.getElementById('step-label').innerText = `Step ${currentStepIndex + 1}: ${step.name}`;
+            document.getElementById('step-instruction').innerText = step.task;
+            updateDisplay();
         }
 
         function skipStep() {
             currentStepIndex++;
-            if (currentStepIndex < methodsData[currentMethod].length) {
+            if (currentStepIndex < currentMethodSteps.length) {
                 setupStep();
-                if (running) restartTimer();
+                if (isRunning) resetAndContinue();
             } else {
-                alert("Study session complete!");
+                alert("Session Complete!");
                 goBack();
             }
         }
 
-        function showTime() {
+        function updateDisplay() {
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             document.getElementById('display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        function toggle() {
-            if (!running) {
-                running = true;
+        function toggleTimer() {
+            if (!isRunning) {
+                isRunning = true;
                 document.getElementById('run-btn').innerText = "Pause";
-                timer = setInterval(() => {
+                timerId = setInterval(() => {
                     timeLeft--;
-                    showTime();
+                    updateDisplay();
                     if (timeLeft <= 0) {
-                        clearInterval(timer);
+                        clearInterval(timerId);
                         skipStep();
                     }
                 }, 1000);
             } else {
-                running = false;
+                isRunning = false;
                 document.getElementById('run-btn').innerText = "Resume";
-                clearInterval(timer);
+                clearInterval(timerId);
             }
         }
 
-        function restartTimer() {
-            clearInterval(timer);
-            running = false;
-            toggle();
+        function resetAndContinue() {
+            clearInterval(timerId);
+            isRunning = false;
+            toggleTimer();
         }
 
         function goBack() {
-            clearInterval(timer);
-            running = false;
+            clearInterval(timerId);
+            isRunning = false;
             document.getElementById('run-btn').innerText = "Start";
             document.getElementById('selection-view').style.display = 'block';
             document.getElementById('timer-view').style.display = 'none';
