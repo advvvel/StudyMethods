@@ -6,17 +6,17 @@
     <title>Study Methods</title>
     <style>
         :root {
-            --bg-neutral: #f9f9f7;     /* Light parchment background */
+            --bg-neutral: #f9f9f7;
             --card-white: #ffffff;
             --border-light: #e8e8e8;
-            --text-black: #000000;     /* Pure black for title */
-            --text-main: #2d2d2d;      /* Dark charcoal for labels */
-            --text-muted: #757575;     /* Slate grey for summaries */
-            --accent-neutral: #1a1a1a; /* Near-black for buttons */
+            --text-black: #000000;
+            --text-main: #2d2d2d;
+            --text-muted: #757575;
+            --accent-neutral: #1a1a1a;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             background-color: var(--bg-neutral);
             margin: 0;
             display: flex;
@@ -27,7 +27,6 @@
             box-sizing: border-box;
         }
 
-        /* Title: STATIC so it scrolls with the page */
         .page-title {
             width: 100%;
             max-width: 900px;
@@ -60,7 +59,6 @@
             background: var(--card-white);
             border: 1px solid var(--border-light);
             border-radius: 20px;
-            /* Removed fixed aspect-ratio so summary text is visible */
             padding: 30px 20px;
             display: flex;
             flex-direction: column;
@@ -73,61 +71,57 @@
         .method-box:hover {
             border-color: var(--text-muted);
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
-        .emoji {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            filter: grayscale(100%); /* Makes emojis neutral/black and white */
-            opacity: 0.8;
-        }
+        .emoji { font-size: 2.5rem; margin-bottom: 15px; }
+        .label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+        .summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0; text-align: center; }
 
-        .method-box:hover .emoji {
-            filter: grayscale(0%); /* Color returns on hover for a nice effect */
-            opacity: 1;
-        }
-
-        .label {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 10px;
-        }
-
-        /* Summary text - explicitly visible and styled */
-        .summary {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin: 0;
-            text-align: center;
-        }
-
+        /* Timer View Styles */
         #timer-view { display: none; }
         
+        /* New Instruction Styling */
+        #instruction-box {
+            background: #f1f1ee;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--text-main);
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         #display {
             font-size: 8rem;
             font-weight: 200;
             color: var(--text-main);
             letter-spacing: -3px;
-            margin: 40px 0;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
         }
 
         .btn {
             background: var(--accent-neutral);
             color: white;
             border: none;
-            padding: 20px 60px;
+            padding: 15px 40px;
             border-radius: 12px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .btn:hover {
-            opacity: 0.9;
+        .btn-secondary {
+            background: #e8e8e8;
+            color: var(--text-main);
         }
 
         .back {
@@ -136,20 +130,11 @@
             color: var(--text-muted);
             cursor: pointer;
             font-size: 0.9rem;
-            text-decoration: none;
-            letter-spacing: 0.5px;
+            text-decoration: underline;
         }
 
-        .back:hover { color: var(--text-black); }
-
-        @media (max-width: 850px) {
-            .method-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 500px) {
-            .method-grid { grid-template-columns: 1fr; }
-            .page-title { text-align: center; }
-        }
+        @media (max-width: 850px) { .method-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .method-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -159,32 +144,32 @@
     <div class="main-card">
         <div id="selection-view">
             <div class="method-grid">
-                <div class="method-box" onclick="start(25, 'Pomodoro')">
+                <div class="method-box" onclick="startMethod('Pomodoro')">
                     <span class="emoji">🍅</span>
                     <span class="label">Pomodoro</span>
                     <p class="summary">Focus for 25 minutes followed by a brief 5 minute rest.</p>
                 </div>
-                <div class="method-box" onclick="start(50, '50/10 Rule')">
+                <div class="method-box" onclick="startMethod('50/10 Rule')">
                     <span class="emoji">⏱️</span>
                     <span class="label">50/10 Rule</span>
                     <p class="summary">Extended focus blocks designed for deep work sessions.</p>
                 </div>
-                <div class="method-box" onclick="start(20, 'Feynman')">
+                <div class="method-box" onclick="startMethod('Feynman')">
                     <span class="emoji">👨‍🏫</span>
                     <span class="label">Feynman</span>
                     <p class="summary">Master a topic by teaching it in the simplest possible terms.</p>
                 </div>
-                <div class="method-box" onclick="start(15, 'Active Recall')">
+                <div class="method-box" onclick="startMethod('Active Recall')">
                     <span class="emoji">🧠</span>
                     <span class="label">Active Recall</span>
                     <p class="summary">Challenge your memory with testing instead of passive review.</p>
                 </div>
-                <div class="method-box" onclick="start(45, 'Eat The Frog')">
+                <div class="method-box" onclick="startMethod('Eat The Frog')">
                     <span class="emoji">🐸</span>
                     <span class="label">Eat The Frog</span>
                     <p class="summary">Prioritize and complete your most difficult task first.</p>
                 </div>
-                <div class="method-box" onclick="start(30, 'SQ3R Method')">
+                <div class="method-box" onclick="startMethod('SQ3R Method')">
                     <span class="emoji">🔍</span>
                     <span class="label">SQ3R Method</span>
                     <p class="summary">Survey, Question, Read, Recite, and Review your material.</p>
@@ -194,28 +179,84 @@
 
         <div id="timer-view">
             <h2 id="mode-name" style="color: var(--text-main); font-size: 1.8rem; font-weight: 800;">Method</h2>
+            
+            <div id="instruction-box">Step 1: Get started</div>
+
             <div id="display">00:00</div>
-            <button id="run-btn" class="btn" onclick="toggle()">Start</button>
+            
+            <div class="controls">
+                <button id="run-btn" class="btn" onclick="toggle()">Start</button>
+                <button class="btn btn-secondary" onclick="skipStep()">Skip Step ⏭️</button>
+            </div>
+
             <span class="back" onclick="goBack()">← Back to Methods</span>
         </div>
     </div>
 
     <script>
-        let time;
+        let currentMethod = null;
+        let currentStepIndex = 0;
+        let timeLeft = 0;
         let timer = null;
         let running = false;
 
-        function start(mins, name) {
+        const methodsData = {
+            'Pomodoro': [
+                { name: "Deep Focus", mins: 25, desc: "Eliminate distractions and focus on one task." },
+                { name: "Short Break", mins: 5, desc: "Stand up, stretch, and grab some water." }
+            ],
+            '50/10 Rule': [
+                { name: "Deep Work", mins: 50, desc: "Complete high-intensity work during this block." },
+                { name: "Relaxation", mins: 10, desc: "Step away from the screen entirely." }
+            ],
+            'Feynman': [
+                { name: "Study Concept", mins: 10, desc: "Read the material you want to master." },
+                { name: "Explain Simply", mins: 10, desc: "Write it down as if explaining to a 10-year-old." }
+            ],
+            'Active Recall': [
+                { name: "Review Material", mins: 5, desc: "Quickly scan the topic or your notes." },
+                { name: "Self-Test", mins: 10, desc: "Close the book. Write down everything you remember." }
+            ],
+            'Eat The Frog': [
+                { name: "Tackle Hardest Task", mins: 45, desc: "Don't stop until the biggest task is finished." }
+            ],
+            'SQ3R Method': [
+                { name: "Survey & Question", mins: 5, desc: "Skim the text and turn headings into questions." },
+                { name: "Read & Recite", mins: 20, desc: "Read to find answers and summarize out loud." },
+                { name: "Review", mins: 5, desc: "Check if you can answer your original questions." }
+            ]
+        };
+
+        function startMethod(name) {
+            currentMethod = name;
+            currentStepIndex = 0;
+            setupStep();
             document.getElementById('selection-view').style.display = 'none';
             document.getElementById('timer-view').style.display = 'block';
             document.getElementById('mode-name').innerText = name;
-            time = mins * 60;
+        }
+
+        function setupStep() {
+            const step = methodsData[currentMethod][currentStepIndex];
+            timeLeft = step.mins * 60;
+            document.getElementById('instruction-box').innerText = `${step.name}: ${step.desc}`;
             showTime();
         }
 
+        function skipStep() {
+            currentStepIndex++;
+            if (currentStepIndex < methodsData[currentMethod].length) {
+                setupStep();
+                if (running) restartTimer();
+            } else {
+                alert("Study session complete!");
+                goBack();
+            }
+        }
+
         function showTime() {
-            let m = Math.floor(time / 60);
-            let s = time % 60;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
             document.getElementById('display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
@@ -224,12 +265,11 @@
                 running = true;
                 document.getElementById('run-btn').innerText = "Pause";
                 timer = setInterval(() => {
-                    time--;
+                    timeLeft--;
                     showTime();
-                    if (time <= 0) {
+                    if (timeLeft <= 0) {
                         clearInterval(timer);
-                        alert("Session complete.");
-                        goBack();
+                        skipStep();
                     }
                 }, 1000);
             } else {
@@ -237,6 +277,12 @@
                 document.getElementById('run-btn').innerText = "Resume";
                 clearInterval(timer);
             }
+        }
+
+        function restartTimer() {
+            clearInterval(timer);
+            running = false;
+            toggle();
         }
 
         function goBack() {
