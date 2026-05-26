@@ -27,7 +27,7 @@
             box-sizing: border-box;
         }
 
-        /* STATIC BLACK TITLE */
+        /* STATIC BLACK TITLE - Scrolls with the page naturally */
         .page-title {
             width: 100%;
             max-width: 900px;
@@ -39,6 +39,7 @@
             position: static; 
         }
 
+        /* BIG WHITE CONTAINER */
         .main-card {
             background: var(--card-white);
             padding: 50px;
@@ -50,6 +51,7 @@
             text-align: center;
         }
 
+        /* 6 METHOD GRID */
         .method-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -76,11 +78,27 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.04);
         }
 
-        .emoji { font-size: 2.5rem; margin-bottom: 15px; }
-        .label { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
-        .summary { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0; text-align: center; }
+        .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
 
-        /* TIMER VIEW */
+        .label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .summary {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* TIMER & INSTRUCTION VIEW */
         #timer-view { display: none; }
         
         .instruction-container {
@@ -131,6 +149,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
+            transition: opacity 0.2s;
             min-width: 160px;
         }
 
@@ -140,6 +159,28 @@
             border: 1px solid var(--border-light);
         }
 
+        .btn:hover { opacity: 0.9; }
+        .btn-skip:hover { background: #f9f9f9; border-color: var(--text-muted); }
+
+        /* ON-SCREEN COMPLETION SCREEN (REPLACES POPUP) */
+        #completion-screen {
+            display: none;
+            padding: 40px 0;
+        }
+
+        .congrats-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .congrats-sub {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
         .back {
             display: block;
             margin-top: 50px;
@@ -147,15 +188,6 @@
             cursor: pointer;
             font-size: 0.9rem;
             text-decoration: underline;
-        }
-
-        /* Message for completion */
-        #completion-msg {
-            display: none;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 40px 0;
         }
 
         @media (max-width: 850px) { .method-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -203,9 +235,9 @@
         </div>
 
         <div id="timer-view">
-            <h2 id="current-method-name" style="margin-bottom: 25px; font-weight: 800;">Method</h2>
+            <h2 id="current-method-header" style="margin-bottom: 25px; font-weight: 800;">Method</h2>
             
-            <div id="timer-content">
+            <div id="active-timer-area">
                 <div class="instruction-container">
                     <div id="step-label">Step 1</div>
                     <div id="step-instruction">Follow the instructions for this phase.</div>
@@ -219,123 +251,28 @@
                 </div>
             </div>
 
-            <div id="completion-msg">The study session is completed! 🎉</div>
+            <div id="completion-screen">
+                <div class="congrats-title">Congratulations! 🎉</div>
+                <p class="congrats-sub">You have finished the method. Would you like to repeat it or do it again?</p>
+                <div class="controls">
+                    <button class="btn" onclick="repeatCurrent()">Repeat Method</button>
+                    <button class="btn btn-skip" onclick="goBack()">Choose Another</button>
+                </div>
+            </div>
 
             <span class="back" onclick="goBack()">← Back to Methods</span>
         </div>
     </div>
 
     <script>
-        let currentMethodSteps = [];
-        let currentStepIndex = 0;
+        let currentMethodName = "";
+        let currentSteps = [];
+        let currentIdx = 0;
         let timeLeft = 0;
         let timerId = null;
         let isRunning = false;
 
-        const methodLogic = {
+        const methods = {
             'Pomodoro': [
                 { name: "Focus Phase", mins: 25, task: "Work on a single task. No distractions allowed." },
-                { name: "Rest Phase", mins: 5, task: "Take a break. Walk away from your desk." }
-            ],
-            '50/10 Rule': [
-                { name: "Deep Work", mins: 50, task: "Intense focus session. Dive deep into your study material." },
-                { name: "Recovery", mins: 10, task: "Fully disconnect. Relax your eyes and mind." }
-            ],
-            'Feynman': [
-                { name: "Concept Review", mins: 10, task: "Identify the topic and review the core components." },
-                { name: "Simplification", mins: 10, task: "Write an explanation as if teaching a beginner." }
-            ],
-            'Active Recall': [
-                { name: "Review", mins: 5, task: "Briefly scan the material to prime your brain." },
-                { name: "Recall", mins: 15, task: "Close the book. Write down everything you can remember." }
-            ],
-            'Eat The Frog': [
-                { name: "Hardest Task", mins: 45, task: "Tackle your most difficult or avoided task right now." }
-            ],
-            'SQ3R Method': [
-                { name: "Survey & Question", mins: 5, task: "Skim the chapter and turn headings into questions." },
-                { name: "Read & Recite", mins: 20, task: "Find answers to your questions and summarize them." },
-                { name: "Review", mins: 5, task: "Review the whole section to fix it in your memory." }
-            ]
-        };
-
-        function startMethod(name) {
-            currentMethodSteps = methodLogic[name];
-            currentStepIndex = 0;
-            document.getElementById('current-method-name').innerText = name;
-            
-            // Reset UI states
-            document.getElementById('timer-content').style.display = 'block';
-            document.getElementById('completion-msg').style.display = 'none';
-            
-            setupStep();
-            document.getElementById('selection-view').style.display = 'none';
-            document.getElementById('timer-view').style.display = 'block';
-        }
-
-        function setupStep() {
-            const step = currentMethodSteps[currentStepIndex];
-            timeLeft = step.mins * 60;
-            document.getElementById('step-label').innerText = `Step ${currentStepIndex + 1}: ${step.name}`;
-            document.getElementById('step-instruction').innerText = step.task;
-            updateDisplay();
-        }
-
-        function skipStep() {
-            currentStepIndex++;
-            if (currentStepIndex < currentMethodSteps.length) {
-                setupStep();
-                if (isRunning) resetAndContinue();
-            } else {
-                finishSession();
-            }
-        }
-
-        function finishSession() {
-            clearInterval(timerId);
-            isRunning = false;
-            document.getElementById('timer-content').style.display = 'none';
-            document.getElementById('completion-msg').style.display = 'block';
-        }
-
-        function updateDisplay() {
-            let m = Math.floor(timeLeft / 60);
-            let s = timeLeft % 60;
-            document.getElementById('display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function toggleTimer() {
-            if (!isRunning) {
-                isRunning = true;
-                document.getElementById('run-btn').innerText = "Pause";
-                timerId = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                    if (timeLeft <= 0) {
-                        clearInterval(timerId);
-                        skipStep();
-                    }
-                }, 1000);
-            } else {
-                isRunning = false;
-                document.getElementById('run-btn').innerText = "Resume";
-                clearInterval(timerId);
-            }
-        }
-
-        function resetAndContinue() {
-            clearInterval(timerId);
-            isRunning = false;
-            toggleTimer();
-        }
-
-        function goBack() {
-            clearInterval(timerId);
-            isRunning = false;
-            document.getElementById('run-btn').innerText = "Start";
-            document.getElementById('selection-view').style.display = 'block';
-            document.getElementById('timer-view').style.display = 'none';
-        }
-    </script>
-</body>
-</html>
+                { name: "Rest Phase", mins: 5, task: "Take a break. Walk away from your
