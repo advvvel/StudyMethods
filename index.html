@@ -12,143 +12,151 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--teal-bg);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 20px;
         }
 
         /* Black title in the top-left corner */
         .page-title {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            font-size: 1.5rem;
+            top: 25px;
+            left: 25px;
+            font-size: 1.6rem;
             color: #000000;
-            font-weight: bold;
+            font-weight: 800;
             margin: 0;
             z-index: 100;
         }
 
-        /* Large white container */
+        /* Large white container expanded to fit more methods */
         .main-card {
             background: white;
-            padding: 40px;
+            padding: 50px;
             border-radius: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            width: 95%;
             max-width: 900px;
             text-align: center;
-            margin-top: 40px;
+            margin-top: 50px;
         }
 
-        /* Grid Selection - Now 3 columns for better fit */
-        .method-container {
+        /* Grid Selection - 3 columns for 6 methods */
+        .method-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
-            margin-top: 10px;
         }
 
         .method-box {
             background: #ffffff;
-            border: 2px solid #f0f0f0;
-            border-radius: 25px;
+            border: 2px solid #f2f2f2;
+            border-radius: 30px;
             aspect-ratio: 1 / 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: 0.3s;
-            padding: 15px;
+            transition: transform 0.3s, border-color 0.3s;
+            padding: 10px;
         }
 
         .method-box:hover {
             border-color: var(--teal-btn);
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             background-color: #fafafa;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         .emoji {
-            font-size: 3rem;
-            margin-bottom: 10px;
+            font-size: 3.5rem;
+            margin-bottom: 12px;
         }
 
         .label {
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--teal-text);
         }
 
-        /* Timer UI */
+        /* Timer View */
         #timer-view { display: none; }
         
         #display {
-            font-size: 6rem;
+            font-size: 7rem;
+            font-weight: 200;
             color: var(--teal-text);
-            margin: 20px 0;
+            margin: 30px 0;
         }
 
         .btn {
             background: var(--teal-btn);
             color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
+            padding: 18px 50px;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
             cursor: pointer;
         }
 
         .back {
             display: block;
-            margin-top: 30px;
-            color: #888;
+            margin-top: 40px;
+            color: #999;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            text-decoration: underline;
+        }
+
+        /* Mobile responsive: switch to 2 columns on small screens */
+        @media (max-width: 700px) {
+            .method-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-title { position: relative; top: 0; left: 0; margin-bottom: 20px; }
         }
     </style>
 </head>
 <body>
 
-    <p class="page-title">StudyMethods</p>
+    <h1 class="page-title">StudyMethods</h1>
 
     <div class="main-card">
         <div id="selection-view">
-            <div class="method-container">
+            <div class="method-grid">
                 <div class="method-box" onclick="start(25, 'Pomodoro')">
                     <span class="emoji">🍅</span>
                     <span class="label">Pomodoro</span>
                 </div>
-                <div class="method-box" onclick="start(10, 'Quick Burst')">
-                    <span class="emoji">⚡</span>
-                    <span class="label">Quick Burst</span>
+                <div class="method-box" onclick="start(50, '50/10 Rule')">
+                    <span class="emoji">⏱️</span>
+                    <span class="label">50/10 Rule</span>
                 </div>
                 <div class="method-box" onclick="start(20, 'Feynman')">
-                    <span class="emoji">🧠</span>
+                    <span class="emoji">👨‍🏫</span>
                     <span class="label">Feynman</span>
                 </div>
-                <div class="method-box" onclick="start(15, 'Recall')">
-                    <span class="emoji">📖</span>
+                <div class="method-box" onclick="start(15, 'Active Recall')">
+                    <span class="emoji">🧠</span>
                     <span class="label">Active Recall</span>
                 </div>
-                <div class="method-box" onclick="start(5, 'Blurting')">
-                    <span class="emoji">📝</span>
-                    <span class="label">Blurting</span>
-                </div>
-                <div class="method-box" onclick="start(45, 'The Frog')">
+                <div class="method-box" onclick="start(45, 'Eat The Frog')">
                     <span class="emoji">🐸</span>
-                    <span class="label">Eat the Frog</span>
+                    <span class="label">Eat The Frog</span>
+                </div>
+                <div class="method-box" onclick="start(30, 'SQ3R Method')">
+                    <span class="emoji">🔍</span>
+                    <span class="label">SQ3R Method</span>
                 </div>
             </div>
         </div>
 
         <div id="timer-view">
-            <h2 id="mode-name" style="color: var(--teal-text)">Method</h2>
+            <h2 id="mode-name" style="color: var(--teal-text); font-size: 1.8rem;">Method</h2>
             <div id="display">00:00</div>
             <button id="run-btn" class="btn" onclick="toggle()">Start</button>
             <span class="back" onclick="goBack()">← Back to Methods</span>
@@ -183,7 +191,7 @@
                     showTime();
                     if (time <= 0) {
                         clearInterval(timer);
-                        alert("Session finished! Take a break.");
+                        alert("Session Complete!");
                         goBack();
                     }
                 }, 1000);
